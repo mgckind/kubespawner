@@ -656,6 +656,11 @@ class KubeSpawner(Spawner):
         print(to_replace)
         for i in range(len(args)):
             if args[i] == to_replace:
-                args[i] = '--hub-api-url="%s"' % (self.accessible_hub_api_url)
-                break
+                args[i] = '--hub-api-url=%s' % (self.accessible_hub_api_url)
+            # Because we don't actually want our command values to be quoted!
+            # This causes them to be literally interpreted, causing lots of
+            # weird failures
+            args[i] = args[i].replace('"', '')
+
+
         return args
