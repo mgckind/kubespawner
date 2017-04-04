@@ -9,6 +9,7 @@ def make_pod_spec(
     port,
     cmd,
     run_as_uid,
+    sup_gid,
     fs_gid,
     env,
     volumes,
@@ -44,6 +45,7 @@ def make_pod_spec(
       - run_as_uid:
         The UID used to run single-user pods. The default is to run as the user
         specified in the Dockerfile, if this is set to None.
+      - sup_gid: Suplemental GID  
       - fs_gid
         The gid that will own any fresh volumes mounted into this pod, if using
         volume types that support this (such as GCE). This should be a group that
@@ -80,6 +82,8 @@ def make_pod_spec(
         pod_security_context['runAsUser'] = int(run_as_uid)
     if fs_gid is not None:
         pod_security_context['fsGroup'] = int(fs_gid)
+    if sup_gid is not None:
+        pod_security_context['supplementalGroups'] = int(sup_gid)
     image_secret = []
     if image_pull_secret is not None:
         image_secret = [{"name": image_pull_secret}]

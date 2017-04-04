@@ -285,6 +285,25 @@ class KubeSpawner(Spawner):
         container metadata is used.
         """
     )
+    
+    singleuser_suplemental_g = Union([
+            Integer(),
+            Callable()
+        ],
+        allow_none=True,
+        config=True,
+        help="""
+        The GID for suplemental groups.
+
+
+        Instead of an integer, this could also be a callable that takes as one
+        parameter the current spawner instance and returns an integer. The callable
+        will be called asynchronously if it returns a future. Note that
+        the interface of the spawner class is not deemed stable across versions,
+        so using this functionality might cause your JupyterHub or kubespawner
+        upgrades to break.
+        """
+    )
 
     singleuser_fs_gid = Union([
             Integer(),
@@ -472,6 +491,11 @@ class KubeSpawner(Spawner):
         else:
             singleuser_uid = self.singleuser_uid
 
+        if callable(self.singleuser_suplemental_g):
+            singleuser_suplemental_g = yield gen.maybe_future(self.singleuser_suplemental_g(self))
+        else:
+            singleuser_suplemental_g = self.singleuser_suplemental_g
+
         if callable(self.singleuser_fs_gid):
             singleuser_fs_gid = yield gen.maybe_future(self.singleuser_fs_gid(self))
         else:
@@ -490,6 +514,7 @@ class KubeSpawner(Spawner):
             self.port,
             real_cmd,
             singleuser_uid,
+            singleuser_suplemental_g,
             singleuser_fs_gid,
             self.get_env(),
             self._expand_all(self.volumes) + hack_volumes,
