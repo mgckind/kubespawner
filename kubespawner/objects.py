@@ -83,7 +83,7 @@ def make_pod_spec(
     if fs_gid is not None:
         pod_security_context['fsGroup'] = int(fs_gid)
     if sup_gid is not None:
-        pod_security_context['supplementalGroups'] = int(sup_gid)
+        pod_security_context['supplementalGroups'] = [int(sup_gid)]
     image_secret = []
     if image_pull_secret is not None:
         image_secret = [{"name": image_pull_secret}]
